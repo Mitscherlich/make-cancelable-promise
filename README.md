@@ -1,30 +1,47 @@
-# my-ts-lib
+# @m9ch/make-cancelable-promise
 
-[![npm version](https://badgen.net/npm/v/my-ts-lib)](https://npm.im/my-ts-lib) [![npm downloads](https://badgen.net/npm/dm/my-ts-lib)](https://npm.im/my-ts-lib)
+[![npm version](https://badgen.net/npm/v/@m9ch/make-cancelable-promise)](https://npm.im/@m9ch/make-cancelable-promise) [![npm downloads](https://badgen.net/npm/dm/@m9ch/make-cancelable-promise)](https://npm.im/@m9ch/make-cancelable-promise)
 
-## Using this template
-
-- Search `my-ts-lib` and replace it with your custom package name.
-
-Features:
-
-- Package manager [pnpm](https://pnpm.js.org/), safe and fast
-- Release with [semantic-release](https://npm.im/semantic-release)
-- Bundle with [tsup](https://github.com/egoist/tsup)
-- Test with [vitest](https://vitest.dev)
-
-To skip CI (GitHub action), add `skip-ci` to commit message. To skip release, add `skip-release` to commit message.
+Make any promise cancelable.
 
 ## Install
 
 via `pnpm`, `yarn` or `npm`:
 
 ```bash
-pnpm add my-ts-lib
+pnpm add @m9ch/make-cancelable-promise
 # or
-yarn add my-ts-lib
+yarn add @m9ch/make-cancelable-promise
 # or
-npm i -S my-ts-lib
+npm i -S @m9ch/make-cancelable-promise
+```
+
+## Usage
+
+```javascript
+import { makeCancelablePromise } from '@m9ch/make-cancelable-promise'
+
+const abort = new AbortController()
+
+const cancelable = makeCancelablePromise(
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve('done')
+    }, 1000)
+  }),
+  abort.signal
+)
+
+setTimeout(() => {
+  cancelable.cancel('The operation was aborted')
+}, 500)
+
+// or with abort signal
+abort.abort()
+
+cancelable.promise
+  .then(console.log)    // => undefined
+  .catch(console.error) // => AbortError: The operation was aborted
 ```
 
 ## License
